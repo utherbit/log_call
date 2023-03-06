@@ -2,9 +2,9 @@ package log_call
 
 import "log"
 
-var LogCall LogCallHandlerGroups
+var LogCall = logCallHandlerGroups{state: make(map[string]*logCallHandler)}
 
-type LogCallHandlerGroups struct {
+type logCallHandlerGroups struct {
 	state map[string]*logCallHandler
 }
 
@@ -15,25 +15,11 @@ type logCallHandler struct {
 
 func (b logCallHandler) Log(i interface{}) {
 	if b.state {
-		log.Println(i)
+		log.Println(b.group, ": g", i)
 	}
 }
 
-func InitLogCall(config ...map[string]bool) {
-	LogCall = LogCallHandlerGroups{
-		state: map[string]*logCallHandler{},
-	}
-	if len(config) > 0 {
-		for s, b := range config[0] {
-			LogCall.state[s] = &logCallHandler{
-				group: s,
-				state: b,
-			}
-		}
-	}
-
-}
-func (g *LogCallHandlerGroups) SetConfig(config map[string]bool) {
+func (g *logCallHandlerGroups) SetConfig(config map[string]bool) {
 	state := map[string]*logCallHandler{}
 	for s, b := range config {
 		state[s] = &logCallHandler{
@@ -42,7 +28,7 @@ func (g *LogCallHandlerGroups) SetConfig(config map[string]bool) {
 		}
 	}
 }
-func (g LogCallHandlerGroups) AddGroup(group string, state ...bool) *logCallHandler {
+func (g logCallHandlerGroups) AddGroup(group string, state ...bool) *logCallHandler {
 	if h, ok := g.state[group]; ok {
 		if len(state) > 0 {
 			h.state = state[0]
