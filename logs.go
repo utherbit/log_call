@@ -1,6 +1,9 @@
 package log_call
 
-import "log"
+import (
+	"fmt"
+	"log"
+)
 
 var LogCall = logCallHandlerGroups{state: make(map[string]*logCallHandler)}
 
@@ -14,15 +17,16 @@ type logCallHandler struct {
 }
 
 func (b logCallHandler) Log(i interface{}) {
+	fmt.Printf("Log, b %#v", b.state)
+
 	if b.state {
 		log.Println(b.group, ": g", i)
 	}
 }
 
 func (g *logCallHandlerGroups) SetConfig(config map[string]bool) {
-	state := map[string]*logCallHandler{}
 	for s, b := range config {
-		state[s] = &logCallHandler{
+		g.state[s] = &logCallHandler{
 			group: s,
 			state: b,
 		}
